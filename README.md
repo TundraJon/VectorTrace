@@ -3,29 +3,7 @@ App to Trace images to Vectors
 
 ## Build Queue
 
-**Not yet authorized.** Stage 0 — Visual Design Mockup (standalone, throwaway HTML, not the app shell)
-
-Goal: one self-contained HTML mockup showing two themes side by side so the look can be approved before Stage 1.
-
-Themes (user-supplied spec, schema 2.0.0):
-- Blueprint Cyanotype: "Technical Engineering", compact density, 3px radius, IBM Plex Sans, square/miter icons, stroke 1.6.
-- Sage Botanical: "Organic Studio", comfortable density, 10px radius, Plus Jakarta Sans, round icons, stroke 1.5.
-- Each theme has light and dark modes (4 looks total). Color tokens exactly as supplied: `--vt-bg`, `--vt-surface`, `--vt-surface-alt`, `--vt-ink`, `--vt-ink-muted`, `--vt-border`, `--vt-accent`, `--vt-accent-text`.
-- Canvas colors are CSS variables too: `--vt-canvas-path-stroke`, `-node-fill`, `-node-stroke`, `-node-selected-fill`, `-handle-line`, `-selection-fill`, `-grid-color`. Canvas JS reads them with `getComputedStyle`.
-
-Decided with user:
-- Fonts: Sans embedded as Latin-subset base64 woff2 (400/500/600). Mono uses the system monospace stack. No CDN.
-- Touch targets: both themes `--vt-touch-target: 40px` visual, with a hit area padded to a 44px minimum.
-- Theme switched by attributes on `<html>`: `data-theme="blueprint-cyanotype|sage-botanical"` and `data-mode="light|dark"`.
-
-*(Added by Claude. Change before authorizing if wanted.)*
-- Hoist fonts, spacing, radius and touch target to theme level so only colors differ per mode (supplied JSON repeats them 4 times).
-- Add icon variables: `--vt-icon-stroke-width`, `--vt-icon-linecap`, `--vt-icon-linejoin`.
-- Mockup shows: stats strip, four-tab bar, side tool strip, floating context bar, layers-panel row, slider + number pair, swatches, a sample canvas with path, nodes, handles, selection and grid; plus a theme toggle and a light/dark toggle.
-- If base64 woff2 can't be fetched from this container, mockup uses the system sans fallback and the font slots stay as marked placeholders.
-- Mockup file is not committed into the app; it is a review aid only.
-
-Verification plan: drive the real page, 0 JS errors, screenshot all four looks, confirm every tappable element measures at least 44px hit area.
+_Empty — nothing here yet._
 
 ## Build Planner
 
@@ -148,7 +126,18 @@ Stage order is as approved. Stage 0 added at user's request (visual design pass 
 - [ ] Stage 1 item "Visual design defined" now overlaps Stage 0
 - [ ] Theme setting is not in the source doc's Sec 13; Sec 13 needs updating if approved
 - [ ] Touch target 40/44px vs Sec 4 tap tolerance 12-15 px: confirm Sec 4 applies to canvas elements only
+- [ ] Sage layer names truncate at 360px wide ("Sun di…", "Horizo…"); row has no room at that width (seen in Stage 0 mockup)
 
 ## Build Log
 
-_Empty — nothing here yet._
+### 1. Stage 0 — Visual design mockup (Blueprint Cyanotype + Sage Botanical)
+- [x] `mockups/stage0_theme_mockup.html`: new single-file, offline review mockup (177 KB). Not the app shell.
+- [x] Theme tokens per `[data-theme]` (fonts, radius, spacing, touch target 40px, icon stroke/cap/join); color + canvas tokens per `[data-theme][data-mode]`
+- [x] Fonts embedded as Latin-subset base64 woff2: IBM Plex Sans 400/500/600, Plus Jakarta Sans 400/500/600 (from npm `@fontsource` 5.3.0); mono is the system stack
+- [x] Hit areas: `.hit::after` pads each 40px control to a 44px zone; `.hit-pad` does the same for the slider and number input
+- [x] `draw()` paints the canvas from the CSS variables via `getComputedStyle`; helpers `rr()`, `smooth()`
+- [x] `bindPair()` slider + number sync; `wireApp()` clones one template into both panels; `apply()` / `loadState()` / `saveState()` (try/catch) for the View, Theme, Mode toggles
+- [x] Shows: stats strip, tool strip, floating context bar, layers rows, slider+number pair, palette, buttons, four-tab bar, sample canvas (path, nodes, handles, marquee, grid)
+- [x] *(Added by Claude)* Fonts/spacing/radius/touch target hoisted to theme level; icon stroke/cap/join as CSS variables; number-input spinners hidden (they clipped "12.5")
+- Verification: Playwright against the real file, 60/60 checks. Token values match the spec in both themes and modes; all 6 font faces loaded; 38 `.hit` controls per theme have a 44px zone with a real hit-test and no overlapping zones; canvas pixel matches `--vt-canvas-node-selected-fill` in all four looks; slider/number sync and clamp; Single view and theme toggle; 0 JS errors; 0 failed requests; no horizontal scroll at 360px. Screenshots checked for all four looks plus 360px. First run showed 2 hit-test failures; both were test errors (points outside the viewport, and pixel snapping at 4px gaps), not app bugs.
+- Needs a real-device check: feel of 40px buttons with 44px zones on a phone thumb; font rendering and sizes in Android WebView; canvas sharpness on a high-density screen; custom slider thumb in WebView; Sage layer-name truncation at narrow widths; dark-mode contrast outdoors.
