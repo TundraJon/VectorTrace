@@ -3,12 +3,41 @@ App to Trace images to Vectors
 
 ## Build Queue
 
-_Empty — nothing here yet._
+**Not yet authorized.** Stage 0 — Visual Design Mockup (standalone, throwaway HTML, not the app shell)
+
+Goal: one self-contained HTML mockup showing two themes side by side so the look can be approved before Stage 1.
+
+Themes (user-supplied spec, schema 2.0.0):
+- Blueprint Cyanotype: "Technical Engineering", compact density, 3px radius, IBM Plex Sans, square/miter icons, stroke 1.6.
+- Sage Botanical: "Organic Studio", comfortable density, 10px radius, Plus Jakarta Sans, round icons, stroke 1.5.
+- Each theme has light and dark modes (4 looks total). Color tokens exactly as supplied: `--vt-bg`, `--vt-surface`, `--vt-surface-alt`, `--vt-ink`, `--vt-ink-muted`, `--vt-border`, `--vt-accent`, `--vt-accent-text`.
+- Canvas colors are CSS variables too: `--vt-canvas-path-stroke`, `-node-fill`, `-node-stroke`, `-node-selected-fill`, `-handle-line`, `-selection-fill`, `-grid-color`. Canvas JS reads them with `getComputedStyle`.
+
+Decided with user:
+- Fonts: Sans embedded as Latin-subset base64 woff2 (400/500/600). Mono uses the system monospace stack. No CDN.
+- Touch targets: both themes `--vt-touch-target: 40px` visual, with a hit area padded to a 44px minimum.
+- Theme switched by attributes on `<html>`: `data-theme="blueprint-cyanotype|sage-botanical"` and `data-mode="light|dark"`.
+
+*(Added by Claude. Change before authorizing if wanted.)*
+- Hoist fonts, spacing, radius and touch target to theme level so only colors differ per mode (supplied JSON repeats them 4 times).
+- Add icon variables: `--vt-icon-stroke-width`, `--vt-icon-linecap`, `--vt-icon-linejoin`.
+- Mockup shows: stats strip, four-tab bar, side tool strip, floating context bar, layers-panel row, slider + number pair, swatches, a sample canvas with path, nodes, handles, selection and grid; plus a theme toggle and a light/dark toggle.
+- If base64 woff2 can't be fetched from this container, mockup uses the system sans fallback and the font slots stay as marked placeholders.
+- Mockup file is not committed into the app; it is a review aid only.
+
+Verification plan: drive the real page, 0 JS errors, screenshot all four looks, confirm every tappable element measures at least 44px hit area.
 
 ## Build Planner
 
 Source: `VectorTrace_ProjectDefinition.md` v1.6. Nothing below is authorized. Section numbers refer to that doc.
-Stage order is as approved. *(Added by Claude. Open suggestion: split the visual design pass out as a Stage 0 before Stage 1, since the doc says it is undefined.)*
+Stage order is as approved. Stage 0 added at user's request (visual design pass before Stage 1).
+
+### Stage 0 — Visual Design (Sec 1)
+- [ ] Two selectable themes: Blueprint Cyanotype and Sage Botanical, each with light and dark mode
+- [ ] Theme tokens as CSS variables: colors, fonts, spacing, radius, touch target, canvas colors, icon stroke
+- [ ] Fonts: Latin-subset base64 woff2 for UI sans, system monospace stack for mono
+- [ ] Touch target 40px visual, 44px minimum padded hit area, both themes
+- [ ] Side-by-side mockup approved by user before Stage 1 starts
 
 ### Stage 1 — Foundation
 - [ ] Single HTML file shell, canvas rendering, mobile-first (Sec 1)
@@ -23,6 +52,7 @@ Stage order is as approved. *(Added by Claude. Open suggestion: split the visual
 - [ ] Quick-cycle background button outside Settings (Sec 13)
 - [ ] Settings: symmetry axis mode (Vertical / Horizontal / Horizontal-Vertical, 44° snap) (Sec 13)
 - [ ] Settings: dark/light theme, independent of canvas background (Sec 13)
+- [ ] Settings: theme choice, Blueprint Cyanotype / Sage Botanical, independent of dark/light and canvas background (new, not in Sec 13)
 - [ ] Slider + number input pair component, used on every slider (Sec 4)
 - [ ] Tap tolerance 12-15 px on all selectable elements (Sec 4)
 - [ ] Animation rules: instant tabs/sub-tabs, smooth slide/fade elsewhere (Sec 3)
@@ -115,6 +145,9 @@ Stage order is as approved. *(Added by Claude. Open suggestion: split the visual
 - [ ] Sec 2 points to Sec 14 for settings; settings are Sec 13
 - [ ] Reference-points "included in all export formats" line appears twice in Sec 8
 - [ ] Int16 ×10 caps coordinates at ±3276.7; "Match Image" on a large photo (e.g. 4000 px) would overflow
+- [ ] Stage 1 item "Visual design defined" now overlaps Stage 0
+- [ ] Theme setting is not in the source doc's Sec 13; Sec 13 needs updating if approved
+- [ ] Touch target 40/44px vs Sec 4 tap tolerance 12-15 px: confirm Sec 4 applies to canvas elements only
 
 ## Build Log
 
