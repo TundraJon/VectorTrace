@@ -126,7 +126,7 @@ Stage order is as approved. Stage 0 added at user's request (visual design pass 
 - [ ] Stage 1 item "Visual design defined" now overlaps Stage 0
 - [ ] Theme setting is not in the source doc's Sec 13; Sec 13 needs updating if approved
 - [ ] Touch target 40/44px vs Sec 4 tap tolerance 12-15 px: confirm Sec 4 applies to canvas elements only
-- [ ] Sage layer names truncate at 360px wide ("Sun di…", "Horizo…"); row has no room at that width (seen in Stage 0 mockup)
+- [ ] Sage layer names can truncate at 360px wide ("Horizo…" for "Horizon line"); row has little room at that width (seen in Stage 0 mockup)
 
 ## Build Log
 
@@ -141,3 +141,11 @@ Stage order is as approved. Stage 0 added at user's request (visual design pass 
 - [x] *(Added by Claude)* Fonts/spacing/radius/touch target hoisted to theme level; icon stroke/cap/join as CSS variables; number-input spinners hidden (they clipped "12.5")
 - Verification: Playwright against the real file, 60/60 checks. Token values match the spec in both themes and modes; all 6 font faces loaded; 38 `.hit` controls per theme have a 44px zone with a real hit-test and no overlapping zones; canvas pixel matches `--vt-canvas-node-selected-fill` in all four looks; slider/number sync and clamp; Single view and theme toggle; 0 JS errors; 0 failed requests; no horizontal scroll at 360px. Screenshots checked for all four looks plus 360px. First run showed 2 hit-test failures; both were test errors (points outside the viewport, and pixel snapping at 4px gaps), not app bugs.
 - Needs a real-device check: feel of 40px buttons with 44px zones on a phone thumb; font rendering and sizes in Android WebView; canvas sharpness on a high-density screen; custom slider thumb in WebView; Sage layer-name truncation at narrow widths; dark-mode contrast outdoors.
+
+### 2. Stage 0 — Sage Botanical font changed to IBM Plex Sans
+- [x] Replaced Plus Jakarta Sans with IBM Plex Sans for Sage Botanical, at the user's request; both themes now share one UI font family (Entry 1 still names Plus Jakarta Sans; this entry supersedes it)
+- [x] `mockups/stage0_theme_mockup.html`: removed the three Jakarta `@font-face` blocks; Sage `--vt-font-ui` now the Plex stack; Sage caption updated
+- [x] Embedded font data now 3 files (Plex 400/500/600); mockup file 177 KB to 128 KB
+- [x] Themes still differ in colors, radius (3px / 10px), spacing density, icon cap/join and stroke width
+- Verification: Playwright against the real file, 59/59 checks (was 60; the two per-family font checks collapsed into one). All 3 font faces loaded, both panels render Plex, tokens unchanged, hit areas and canvas checks still pass, 0 JS errors, 0 failed requests. Screenshots checked: side by side light/dark and 360px. At 360px "Sun disc" now fits in Sage; "Horizon line" still truncates (logged in Needs Decision).
+- Needs a real-device check: Plex rendering and weights in Android WebView; whether Sage still feels distinct enough from Blueprint with the same font.
