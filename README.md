@@ -3,42 +3,7 @@ App to Trace images to Vectors
 
 ## Build Queue
 
-**Not yet authorized.** Stage 1A — App Shell, Themes, Tabs, Stats Strip, Viewport
-
-Goal: the first real app file, `index.html` at repo root. Single file, offline, no CDN, canvas-based, mobile-first, runs on desktop too (Sec 1). Stage 1B (Settings panel contents and persistence) follows as its own build.
-
-From the spec:
-- Persistent viewport: one `<canvas>` fills the screen behind all panels; the image is visible on every tab (Sec 2).
-- Four tabs, instant switching, no animation: Load, Auto Trace, Fine Edit, Output (Sec 2, 3). Tab bodies are empty placeholders labeled with the tab name; real content arrives in later stages.
-- Always-visible stats strip pinned to the very top, above the tab bar: `[-/0 pts] [0 colors] [0 layers] [400×300]`. Point count is `selected/total`, with `-` when nothing is selected. Values come from app state (Sec 2).
-- Settings icon in the stats strip opens a slide-down panel shell, reachable from any tab (Sec 2). Panel contents are 1B.
-- Slider + number input pair as one reusable component: slider and number stay in sync, number clamps on commit, spinners hidden. Used on every slider in the app from here on (Sec 4).
-- Tap tolerance constant `TAP_TOLERANCE_PX = 14` (Sec 4 range 12-15). Real hit-testing arrives with the stages that have selectable shapes.
-- Animation rules as CSS classes: tabs instant; panels and overlays use smooth slide or fade (Sec 3).
-
-From the approved Stage 0 mockup:
-- Both themes, light and dark: Blueprint Cyanotype and Sage Botanical. Token blocks copied as-is from `mockups/stage0_theme_mockup.html`: theme-level tokens (fonts, radius, spacing, touch target, icon stroke) and mode-level tokens (colors, canvas).
-- `data-theme` and `data-mode` go on `<html>`.
-- IBM Plex Sans 400/500/600 embedded as base64 woff2 (Latin subset); system monospace stack for mono.
-- Controls 40px visual with a 44px hit zone (`.hit` and `.hit-pad` patterns). Canvas colors read from the CSS variables with `getComputedStyle`.
-
-Ported from ShipBuilder (working logic only, no styling):
-- Image loading via FileReader.
-- `view {tx, ty, scale, cos, sin}` with `screenToImage` and `imageToScreen`; `rotateClockwise`.
-- Touch handlers for pan, pinch-zoom and twist-rotate, normal view only.
-- Modal system: `showNameModal` generalized (title, default value, callback, multiline).
-- Left out: nose/tail calibration (`imageToCanvas`, `canvasToScreen`, `activeAxis`), thrust, `.jon` format, parts-move mode.
-- Not in 1A: HSL picker, eyedropper, parts system. They stay in the Planner and get ported when first used (Stage 5).
-
-*(Added by Claude. Change before authorizing if wanted.)*
-- Tab bar position: top, as spec Sec 2 says ("across the top"). The Stage 0 mockup showed it at the bottom; see Needs Decision.
-- Theme switching until 1B adds Settings controls: `?theme=sage-botanical&mode=dark` URL parameters. Defaults: Blueprint, light.
-- A plain "Load Image" button on the Load tab so the viewport can be exercised. The Load tab's full UI (rotate button, fine-rotation slider, canvas size inputs, Match Image) stays Stage 3. Alternative: skip image loading in 1A and test with a sample image.
-- Default canvas 400×300; viewport background white (light mode) or near-black (dark mode). The Black/White/Checker choice is 1B.
-- Layout uses `dvh`, not `100vh`; bottom-pinned UI uses `position: fixed` (CLAUDE.md App facts).
-- Slider pair is verified by a scratch test only, since nothing in 1A uses a slider yet.
-
-Verification plan: drive the real page. 0 JS errors; tabs switch with no transition; stats strip text correct; settings panel slides and closes from every tab; screenshot all four theme looks plus 360px; load an image and check pan, pinch and twist-rotate using synthetic touch events; slider pair sync and clamp.
+_Empty — nothing here yet._
 
 ## Build Planner
 
@@ -157,12 +122,12 @@ Stage order is as approved. Stage 0 added at user's request (visual design pass 
 - [ ] Symmetry: Sec 8 allows a specific non-orthogonal angle; Sec 13 says no free-angle mode and a fixed 44° snap
 - [ ] Sec 2 points to Sec 14 for settings; settings are Sec 13
 - [ ] Reference-points "included in all export formats" line appears twice in Sec 8
-- [ ] Int16 ×10 caps coordinates at ±3276.7; "Match Image" on a large photo (e.g. 4000 px) would overflow
+- [x] Int16 ×10 caps coordinates at ±3276.7; "Match Image" on a large photo (e.g. 4000 px) would overflow. Resolved by user: store a per-file scale in the header; the encoder picks the largest scale (up to x10) that fits the biggest coordinate and the decoder divides by it. Sec 10 and the Stage 7 spec need updating when that stage is queued
 - [ ] Stage 1 item "Visual design defined" now overlaps Stage 0
 - [ ] Theme setting is not in the source doc's Sec 13; Sec 13 needs updating if approved
 - [ ] Touch target 40/44px vs Sec 4 tap tolerance 12-15 px: confirm Sec 4 applies to canvas elements only
 - [ ] Sage layer names can truncate at 360px wide ("Horizo…" for "Horizon line"); row has little room at that width (seen in Stage 0 mockup)
-- [ ] Tab bar position: spec Sec 2 says tabs "across the top"; the approved Stage 0 mockup showed them at the bottom. Queue 1A defaults to top per spec
+- [x] Tab bar position: spec Sec 2 says tabs "across the top"; the approved Stage 0 mockup showed them at the bottom. Resolved by user: tabs on top (built in 1A)
 
 ## Build Log
 
@@ -185,3 +150,21 @@ Stage order is as approved. Stage 0 added at user's request (visual design pass 
 - [x] Themes still differ in colors, radius (3px / 10px), spacing density, icon cap/join and stroke width
 - Verification: Playwright against the real file, 59/59 checks (was 60; the two per-family font checks collapsed into one). All 3 font faces loaded, both panels render Plex, tokens unchanged, hit areas and canvas checks still pass, 0 JS errors, 0 failed requests. Screenshots checked: side by side light/dark and 360px. At 360px "Sun disc" now fits in Sage; "Horizon line" still truncates (logged in Needs Decision).
 - Needs a real-device check: Plex rendering and weights in Android WebView; whether Sage still feels distinct enough from Blueprint with the same font.
+
+### 3. Stage 1A — App shell, themes, tabs, stats strip, viewport
+- [x] `index.html`: new single-file, offline app shell (126 KB); IBM Plex Sans 400/500/600 embedded
+- [x] Themes: Stage 0 token blocks copied as-is onto `<html data-theme data-mode>`; `applyThemeFromUrl()` reads `?theme=` and `?mode=` (invalid values fall back to Blueprint / light)
+- [x] Viewport: `<canvas id="vp">` fixed behind all panels (`dvh` height); `resizeCanvas()`, `measureWorkspace()`, `render()` (device-pixel-ratio aware; background white in light mode, near-black in dark)
+- [x] Stats strip: `appState`, `updateStats()` renders `[-/0 pts] [0 colors] [0 layers] [400×300]`
+- [x] Tabs on top, instant: `selectTab()` with placeholder panel content per tab; Load Image button on the Load tab
+- [x] Settings shell: `setSettingsOpen()`, slide-down panel behind the bars, fading scrim; opens from any tab; close button or scrim tap closes
+- [x] `createSliderPair()`: reusable slider + number component (sync, clamp on commit, 44px wrappers, spinners hidden)
+- [x] `showNameModal()`, `confirmModal()`, `cancelModal()`: ShipBuilder's modal generalized (single-line and multiline)
+- [x] Ported from ShipBuilder: FileReader image load, `setViewRotation()`, `screenToImage()`, `imageToScreen()`, `rotateClockwise()`, one-finger pan and two-finger pinch-zoom about the midpoint
+- [x] `TAP_TOLERANCE_PX = 14` declared; not used until stages with selectable shapes
+- [x] Controls are 40px visual with 44px hit zones (`.hit`, `.hit-pad`)
+- Correction to the Queue: it said pan, pinch and twist-rotate. In ShipBuilder the two-finger twist rotates a selected part, not the view, so the view gets pan and pinch-zoom only. View rotation is `rotateClockwise()`; its button arrives in Stage 3.
+- Deviations from the Stage 0 mockup: stats chips are text-only so the strip stays one row at 360px (Sage's roomier spacing wrapped in the mockup); the active-tab bar is on the bottom edge now that tabs are on top.
+- Not built: mouse drag and wheel zoom. Touch only, like ShipBuilder; desktop pan/zoom is a proposal. `touchcancel` is handled like `touchend` (ShipBuilder did not).
+- Verification: Playwright against the real file on a touch-emulated phone, synthetic finger gestures through CDP, 74/74 checks. Stats text and state updates; tabs on top, viewport fills the screen behind the panels; tab switches have no transition; settings opens and closes from all 4 tabs; image fitted and centered, red/blue pixels land where expected; one-finger pan moves by exactly the finger delta; pinch doubles and halves zoom and keeps the midpoint fixed; lifting one finger mid-pinch causes no jump; 90° rotation and transform round-trip; slider pair sync, clamp and 44px wrappers; modal Enter, Escape, Cancel, OK and multiline; hit areas for every control with the panel closed and open; all four looks match their tokens and use Plex; 360px has no horizontal scroll and a one-row stats strip; 0 JS errors; 0 failed requests. Screenshots checked for the four looks, settings open, and 360px. Several early failures were test mistakes (CDP touch semantics, a hidden control counted, thresholds), not app bugs.
+- Needs a real-device check: pan and pinch feel and smoothness with a large (12 MP) photo; memory use on big images; `dvh` and safe-area padding on Android WebView and notched phones; Plex rendering in WebView; settings slide smoothness; the file picker on Android (gallery and camera); modal keyboard behavior on mobile; thumb reach for tabs at the top.
